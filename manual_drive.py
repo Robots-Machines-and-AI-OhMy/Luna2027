@@ -25,22 +25,24 @@ An older axis-only sender still drives, but A will not operate the Miner.
   BUTTON 3  X               Unassigned
   BUTTON 4  Y               Unassigned
   BUTTON 5  L4              Unassigned
-  BUTTON 6  L1              Unassigned
-  BUTTON 7  R1              Unassigned
+  BUTTON 6  L1              Hold to run Hopper FORWARD (CAN 7)
+  BUTTON 7  R1              Hold to run Hopper REVERSE (CAN 7)
   BUTTON 8  L2 digital      Unused; analog axis 5 operates Lift
   BUTTON 9  R2 digital      Unused; analog axis 4 operates Lift
   BUTTON 13 L3              Unassigned
   BUTTON 14 R3              Unassigned
 
 MOTORS: 1 front_right, 2 back_right, 3 back_left, 4 front_left,
-        5 Lift, 6 Miner, 7 Hopper (unassigned; held stopped).
+        5 Lift, 6 Miner, 7 Hopper.
+LIFT/HOPPER: Kraken X44s, configured at startup (X44 gains, current
+        limits, brake mode). VelocityVoltage with FOC disabled.
 DRIVE: Original arcade mixing and NEGATED RIGHT SIDE preserved.
 MUSIC: rickroll_loud.chrp plays on startup, stops on active control.
 SAFETY: 0.5-second packet watchdog. Sender must send regular packets
         even when joystick remains steady. Physical E-stop required.
         Lift travel limits are NOT implemented; test unloaded and secured.
-        Lift/Miner closed-loop gains are NOT configured here; they must
-        already have suitable gains on their Talon FX controllers.
+        Miner closed-loop gains are NOT configured here; it must
+        already have suitable gains on its Talon FX controller.
 """
 
 import os
@@ -56,12 +58,22 @@ from phoenix6.canbus import CANBus
 from phoenix6.configs import TalonFXConfiguration
 from phoenix6.controls import VelocityVoltage
 from phoenix6.orchestra import Orchestra
-from phoenix6.signals import NeutralModeValue
+from phoenix6.signals import InvertedValue, NeutralModeValue
 
 # ----- Drive and mechanism speeds (rotations/second) -----
 MAX_VELOCITY = 20.0       # Original working drive speed; unchanged
 LIFT_VELOCITY = 10.0      # Test carefully: no software travel limits
 MINER_VELOCITY = 10.0
+HOPPER_VELOCITY = 10.0
+
+# ----- Lift/Hopper Kraken X44 config (~7,500 RPM free ≈ 126 rps at 12 V) -----
+X44_K_S = 0.10            # V to overcome static friction
+X44_K_V = 0.095           # V per rps (12 V / ~126 rps)
+X44_K_P = 0.11            # V per rps of error
+X44_STATOR_LIMIT = 40.0   # A
+X44_SUPPLY_LIMIT = 30.0   # A
+LIFT_INVERTED = False     # Flip if L2 lowers instead of raises
+HOPPER_INVERTED = False   # Flip if L1 runs Hopper backwards
 DEADZONE = 3000           # Ignore small left-stick movements
 TRIGGER_THRESHOLD = -25000  # Trigger released near -32767
 
@@ -164,6 +176,28 @@ class ManualControlNode(Node):
             if not status.is_ok():
                 self.get_logger().error(f'Failed to configure {name}: {status}')
 
+        # Lift/Hopper: Kraken X44 gains, current limits, brake mode.
+        for name, inverted in (('Lift', LIFT_INVERTED),
+                               ('Hopper', HOPPER_INVERTED)):
+            x44_config = TalonFXConfiguration()
+            x44_config.slot0.k_s = X44_K_S
+            x44_config.slot0.k_v = X44_K_V
+            x44_config.slot0.k_p = X44_K_P
+            x44_config.slot0.k_i = 0.0
+            x44_config.slot0.k_d = 0.0
+            x44_config.current_limits.stator_current_limit = X44_STATOR_LIMIT
+            x44_config.current_limits.stator_current_limit_enable = True
+            x44_config.current_limits.supply_current_limit = X44_SUPPLY_LIMIT
+            x44_config.current_limits.supply_current_limit_enable = True
+            x44_config.motor_output.neutral_mode = NeutralModeValue.BRAKE
+            x44_config.motor_output.inverted = (
+                InvertedValue.CLOCKWISE_POSITIVE if inverted
+                else InvertedValue.COUNTER_CLOCKWISE_POSITIVE
+            )
+            status = self.motors[name].configurator.apply(x44_config)
+            if not status.is_ok():
+                self.get_logger().error(f'Failed to configure {name}: {status}')
+
         # Music uses all seven motors, as in the uploaded code.
         self.orchestra = Orchestra()
         for name, track in INSTRUMENT_TRACKS:
@@ -184,9 +218,10 @@ class ManualControlNode(Node):
         # Keep original per-side drive request objects and sign conventions.
         self.left_control = VelocityVoltage(0.0)
         self.right_control = VelocityVoltage(0.0)
-        self.lift_control = VelocityVoltage(0.0)
+        # Lift/Hopper: FOC off (Phoenix Pro license status unconfirmed).
+        self.lift_control = VelocityVoltage(0.0).with_enable_foc(False)
         self.miner_control = VelocityVoltage(0.0)
-        self.hopper_control = VelocityVoltage(0.0)
+        self.hopper_control = VelocityVoltage(0.0).with_enable_foc(False)
 
         # Phoenix must be fed while running outside the FRC robot framework.
         self.enable_timer = self.create_timer(0.05, self.feed_enable)
@@ -233,6 +268,8 @@ class ManualControlNode(Node):
             self.buttons[button] = 1 if value else 0
             if button == BUTTON_A:
                 self.update_miner()
+            elif button in (BUTTON_L1, BUTTON_R1):
+                self.update_hopper()
             # All other buttons are intentionally unassigned.
             return
 
@@ -301,8 +338,20 @@ class ManualControlNode(Node):
         self.motors['Miner'].set_control(self.miner_control)
 
     def update_hopper(self):
-        """CAN ID 7 is not assigned to a button: always command zero."""
-        self.hopper_control.velocity = 0.0
+        """Hold L1 forward, R1 reverse; neither/both stops CAN ID 7."""
+        l1_pressed = self.buttons[BUTTON_L1]
+        r1_pressed = self.buttons[BUTTON_R1]
+        if l1_pressed and not r1_pressed:
+            velocity = HOPPER_VELOCITY
+        elif r1_pressed and not l1_pressed:
+            velocity = -HOPPER_VELOCITY
+        else:
+            velocity = 0.0
+        if velocity != 0.0:
+            self.stop_music()
+        elif self.orchestra.is_playing():
+            return  # Idle heartbeat must not interrupt music (like drive)
+        self.hopper_control.velocity = velocity
         self.motors['Hopper'].set_control(self.hopper_control)
 
     def zero_axes(self):
