@@ -36,6 +36,9 @@ MOTORS: 1 front_right, 2 back_right, 3 back_left, 4 front_left,
         5 Lift, 6 Miner, 7 Hopper.
 LIFT/HOPPER: Kraken X44s, configured at startup (X44 gains, current
         limits, brake mode). VelocityVoltage with FOC disabled.
+MECHANISM IDLE: Lift and Hopper (lead screws) receive a zero-velocity
+        closed-loop command when released. Miner receives a Phoenix 6
+        StaticBrake request (motor leads shorted) when A is released.
 DRIVE: Original arcade mixing and NEGATED RIGHT SIDE preserved.
 MUSIC: rickroll_loud.chrp plays on startup, stops on active control.
 SAFETY: 0.5-second packet watchdog. Sender must send regular packets
@@ -45,18 +48,23 @@ SAFETY: 0.5-second packet watchdog. Sender must send regular packets
         already have suitable gains on its Talon FX controller.
 """
 
+import csv
+import datetime as dt
 import os
+import queue
 import select
 import socket
 import struct
+import threading
 import time
+from pathlib import Path
 
 import rclpy
 from rclpy.node import Node
 from phoenix6 import hardware, unmanaged
 from phoenix6.canbus import CANBus
 from phoenix6.configs import TalonFXConfiguration
-from phoenix6.controls import VelocityVoltage
+from phoenix6.controls import StaticBrake, VelocityVoltage
 from phoenix6.orchestra import Orchestra
 from phoenix6.signals import InvertedValue, NeutralModeValue
 
@@ -138,6 +146,118 @@ INSTRUMENT_TRACKS = [
     ('back_left', 1), ('back_right', 1),
     ('Miner', 2), ('Hopper', 2),
 ]
+
+
+# ----- Electrical logger (inlined from electrical_logger.py) -----
+# Non-blocking CSV diagnostics for Phoenix 6 Talon FX motors on Linux.
+FIELDS = ["timestamp", "elapsed_s", "motor", "can_id", "command", "supply_current_a", "stator_current_a", "supply_voltage_v", "motor_voltage_v", "velocity_rps", "position_rot", "device_temp_c", "duty_cycle", "status"]
+FAULT_FIELDS = ["timestamp", "motor", "can_id", "kind", "details"]
+README = '''ROVER ELECTRICAL LOGS\n=====================\nmotor_readings.csv: one row per motor per sample (default 0.5 seconds).\nmotor_faults.csv: fault snapshots when they change, plus read/communication errors.\n\nCOLUMNS\ntimestamp: local timestamp with timezone.\nelapsed_s: seconds since logger start (monotonic).\nmotor: descriptive motor name.\ncan_id: Talon FX device ID, if accessible.\ncommand: latest command supplied by your control code; blank if not supplied.\nsupply_current_a: current drawn by motor controller from power supply.\nstator_current_a: current in motor windings; may exceed supply current.\nsupply_voltage_v: voltage seen at Talon FX supply input.\nmotor_voltage_v: voltage applied to motor (controller estimate).\nvelocity_rps: motor rotations per second, sign indicates direction.\nposition_rot: motor sensor position in rotations.\ndevice_temp_c: Talon FX device temperature (not necessarily motor winding temperature).\nduty_cycle: motor output fraction, generally -1 to +1.\nstatus: OK or failed signal names; failed reads should not be treated as zero.\n\nINTERPRETATION\nVoltage drop plus brownout fault: investigate wiring, connections, power distribution, battery.\nHigh stator current with near-zero velocity: possible mechanical stall or load.\nCommand present but no voltage/output: investigate controls, enable state, limits and faults.\nRead errors: investigate CANivore/CAN bus wiring and communication.\nCompare all readings at the same timestamp; one sample alone does not prove root cause.\nSticky faults persist until cleared; this logger never clears them.\n'''
+
+class ElectricalLogger:
+    def __init__(self, motors, directory="electrical_logs", interval=0.5, command_getter=None):
+        """motors: dict of {name: TalonFX}. command_getter(name) optional."""
+        self.motors = dict(motors)
+        self.directory = Path(directory).expanduser().resolve()
+        self.interval = max(0.1, float(interval))
+        self.command_getter = command_getter
+        self.stop_event = threading.Event()
+        self.thread = None
+        self.last_faults = {}
+        self.start_time = time.monotonic()
+
+    @staticmethod
+    def _read(motor, method):
+        try:
+            signal = getattr(motor, method)()
+            status = getattr(signal, "status", None)
+            if status is not None and hasattr(status, "is_ok") and not status.is_ok():
+                return "", f"{method}: {status}"
+            value = getattr(signal, "value", None)
+            if value is None:
+                value = getattr(signal, "value_as_double", None)
+            if callable(value):
+                value = value()
+            if value is None:
+                return "", f"{method}: no value"
+            return float(value), None
+        except Exception as exc:
+            return "", f"{method}: {type(exc).__name__}: {exc}"
+
+    @staticmethod
+    def _fault_snapshot(motor):
+        out = {}
+        for name in ("get_fault_field", "get_sticky_fault_field"):
+            try:
+                fn = getattr(motor, name, None)
+                if fn is not None:
+                    sig = fn()
+                    status = getattr(sig, "status", None)
+                    if status is not None and hasattr(status, "is_ok") and not status.is_ok():
+                        out[name] = f"READ_ERROR {status}"
+                    else:
+                        out[name] = str(getattr(sig, "value", sig))
+            except Exception as exc:
+                out[name] = f"READ_ERROR {exc}"
+        # Fallback: inspect standard Phoenix 6 fault getter methods if field getter unavailable.
+        if not out:
+            for name in dir(motor):
+                if not (name.startswith("get_fault_") or name.startswith("get_sticky_fault_")):
+                    continue
+                try:
+                    sig = getattr(motor, name)()
+                    val = getattr(sig, "value", None)
+                    if val is True or (isinstance(val, (int, float)) and val != 0):
+                        out[name] = str(val)
+                except Exception:
+                    pass
+        return out
+
+    def start(self):
+        if self.thread is not None:
+            return
+        self.directory.mkdir(parents=True, exist_ok=True)
+        (self.directory / "README.txt").write_text(README, encoding="utf-8")
+        self.stop_event.clear()
+        self.thread = threading.Thread(target=self._run, name="electrical-logger", daemon=True)
+        self.thread.start()
+
+    def stop(self):
+        self.stop_event.set()
+        if self.thread is not None:
+            self.thread.join(timeout=3)
+            self.thread = None
+
+    def _run(self):
+        readings = self.directory / "motor_readings.csv"
+        faults = self.directory / "motor_faults.csv"
+        with readings.open("a", newline="", buffering=1) as rf, faults.open("a", newline="", buffering=1) as ff:
+            rw, fw = csv.DictWriter(rf, FIELDS), csv.DictWriter(ff, FAULT_FIELDS)
+            if rf.tell() == 0: rw.writeheader()
+            if ff.tell() == 0: fw.writeheader()
+            methods = {"supply_current_a": "get_supply_current", "stator_current_a": "get_stator_current", "supply_voltage_v": "get_supply_voltage", "motor_voltage_v": "get_motor_voltage", "velocity_rps": "get_velocity", "position_rot": "get_position", "device_temp_c": "get_device_temp", "duty_cycle": "get_duty_cycle"}
+            while not self.stop_event.is_set():
+                started = time.monotonic()
+                stamp = dt.datetime.now().astimezone().isoformat(timespec="milliseconds")
+                for name, motor in self.motors.items():
+                    can_id = getattr(motor, "device_id", "")
+                    row = {"timestamp": stamp, "elapsed_s": round(started-self.start_time, 3), "motor": name, "can_id": can_id, "command": "", "status": "OK"}
+                    errors = []
+                    if self.command_getter:
+                        try: row["command"] = self.command_getter(name)
+                        except Exception as exc: errors.append(f"command: {exc}")
+                    for column, method in methods.items():
+                        row[column], err = self._read(motor, method)
+                        if err: errors.append(err)
+                    if errors:
+                        row["status"] = "; ".join(errors)
+                        fw.writerow({"timestamp": stamp, "motor": name, "can_id": can_id, "kind": "READ_ERROR", "details": row["status"]})
+                    rw.writerow(row)
+                    snapshot = self._fault_snapshot(motor)
+                    if snapshot != self.last_faults.get(name):
+                        fw.writerow({"timestamp": stamp, "motor": name, "can_id": can_id, "kind": "FAULT_CHANGE", "details": repr(snapshot)})
+                        self.last_faults[name] = snapshot
+                self.stop_event.wait(max(0, self.interval-(time.monotonic()-started)))
 
 
 class ManualControlNode(Node):
@@ -227,11 +347,38 @@ class ManualControlNode(Node):
         self.lift_control = VelocityVoltage(0.0).with_enable_foc(False)
         self.miner_control = VelocityVoltage(0.0)
         self.hopper_control = VelocityVoltage(0.0).with_enable_foc(False)
+        # Idle request for the Miner when A is released.
+        self.brake_control = StaticBrake()
 
         # Phoenix must be fed while running outside the FRC robot framework.
         self.enable_timer = self.create_timer(0.05, self.feed_enable)
         self.last_log_time = 0.0
+        # Electrical diagnostics for all seven motors; logs are written on Jetson.
+        self.electrical_logger = ElectricalLogger(
+            motors=self.motors,
+            directory=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'electrical_logs'),
+            interval=0.5,
+            command_getter=self.motor_command_rps,
+        )
+        try:
+            self.electrical_logger.start()
+            self.get_logger().info('Electrical logs enabled in electrical_logs/')
+        except OSError as exc:
+            self.get_logger().error(f'Could not start electrical logging: {exc}')
+
         self.get_logger().info('Ready: UDP controller on port 5000')
+
+    def motor_command_rps(self, name):
+        """Requested motor velocity in rotations/sec, not measured speed."""
+        if name in ('front_left', 'back_left'):
+            return self.left_control.velocity
+        if name in ('front_right', 'back_right'):
+            return self.right_control.velocity
+        return {
+            'Lift': self.lift_control,
+            'Miner': self.miner_control,
+            'Hopper': self.hopper_control,
+        }[name].velocity
 
     def feed_enable(self):
         """Keep Phoenix devices enabled while the ROS timer is serviced."""
@@ -338,6 +485,20 @@ class ManualControlNode(Node):
         self.motors['front_right'].set_control(self.right_control)
         self.motors['back_right'].set_control(self.right_control)
 
+    def command_mechanism(self, name, control, velocity, static_brake=False):
+        """Run a mechanism at velocity; when idle, hold zero velocity,
+        or StaticBrake it if static_brake is True."""
+        if velocity != 0.0:
+            self.stop_music()
+        elif self.orchestra.is_playing():
+            return  # Idle heartbeat must not interrupt music (like drive)
+        # Keep velocity current even when braking so the logged command is 0.
+        control.velocity = velocity
+        if velocity == 0.0 and static_brake:
+            self.motors[name].set_control(self.brake_control)
+            return
+        self.motors[name].set_control(control)
+
     def update_lift(self):
         """Hold L2 to raise, R2 to lower; neither/both stops CAN ID 5."""
         l2_pressed = self.axes[L2_AXIS] > TRIGGER_THRESHOLD
@@ -348,22 +509,13 @@ class ManualControlNode(Node):
             velocity = -self.mechanism_speed
         else:
             velocity = 0.0
-        if velocity != 0.0:
-            self.stop_music()
-        elif self.orchestra.is_playing():
-            return  # Idle heartbeat must not interrupt music (like drive)
-        self.lift_control.velocity = velocity
-        self.motors['Lift'].set_control(self.lift_control)
+        self.command_mechanism('Lift', self.lift_control, velocity)
 
     def update_miner(self):
-        """Hold A to run Miner (CAN ID 6); release to stop."""
+        """Hold A to run Miner (CAN ID 6); release to brake."""
         velocity = self.mechanism_speed if self.buttons[BUTTON_A] else 0.0
-        if velocity != 0.0:
-            self.stop_music()
-        elif self.orchestra.is_playing():
-            return  # Idle heartbeat must not interrupt music (like drive)
-        self.miner_control.velocity = velocity
-        self.motors['Miner'].set_control(self.miner_control)
+        self.command_mechanism('Miner', self.miner_control, velocity,
+                               static_brake=True)
 
     def update_hopper(self):
         """Hold L1 forward, R1 reverse; neither/both stops CAN ID 7."""
@@ -375,12 +527,7 @@ class ManualControlNode(Node):
             velocity = -self.mechanism_speed
         else:
             velocity = 0.0
-        if velocity != 0.0:
-            self.stop_music()
-        elif self.orchestra.is_playing():
-            return  # Idle heartbeat must not interrupt music (like drive)
-        self.hopper_control.velocity = velocity
-        self.motors['Hopper'].set_control(self.hopper_control)
+        self.command_mechanism('Hopper', self.hopper_control, velocity)
 
     def zero_axes(self):
         """Watchdog: clear ALL inputs and stop all motors on packet loss."""
@@ -391,19 +538,19 @@ class ManualControlNode(Node):
         self.stop_motor_commands()
 
     def stop_motor_commands(self):
-        """Send zero velocity to all seven Talon FX controllers."""
+        """Zero velocity to drive, Lift and Hopper; StaticBrake the Miner."""
         self.stop_music()
         self.left_control.velocity = 0.0
         self.right_control.velocity = 0.0
         self.lift_control.velocity = 0.0
-        self.miner_control.velocity = 0.0
+        self.miner_control.velocity = 0.0  # Logged command; Miner is braked
         self.hopper_control.velocity = 0.0
         for name in ('front_left', 'back_left'):
             self.motors[name].set_control(self.left_control)
         for name in ('front_right', 'back_right'):
             self.motors[name].set_control(self.right_control)
         self.motors['Lift'].set_control(self.lift_control)
-        self.motors['Miner'].set_control(self.miner_control)
+        self.motors['Miner'].set_control(self.brake_control)
         self.motors['Hopper'].set_control(self.hopper_control)
 
     def stop_all(self):
@@ -462,6 +609,8 @@ def main(args=None):
         pass
     finally:
         node.stop_all()
+        if hasattr(node, 'electrical_logger'):
+            node.electrical_logger.stop()
         if sock is not None:
             sock.close()
         node.destroy_node()
