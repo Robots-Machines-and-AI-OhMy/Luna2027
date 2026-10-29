@@ -1,0 +1,179 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.3.2"
+    }
+    defaultPrim = "rover"
+    endTimeCode = 1000000
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    startTimeCode = 0
+    upAxis = "Z"
+)
+
+over "rover"
+{
+    over "Geometry"
+    {
+        over "base_link" (
+            prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsArticulationRootAPI", "NewtonArticulationRootAPI", "PhysicsMassAPI", "NewtonMassAPI"]
+        )
+        {
+            double[] newton:inertia = [0.12, 0.25, 0.35, 0, 0, 0]
+            bool newton:selfCollisionEnabled = 0
+            float3 physics:diagonalInertia = (0.12, 0.25, 0.35)
+            float physics:mass = 8
+            quatf physics:principalAxes = (1, 0, 0, 0)
+
+            over "front_left_wheel" (
+                prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "NewtonMassAPI"]
+            )
+            {
+                double[] newton:inertia = [0.00168, 0.003, 0.00168, 0, 0, 0]
+                float3 physics:diagonalInertia = (0.00168, 0.00168, 0.003)
+                float physics:mass = 0.6
+                quatf physics:principalAxes = (-0.70710677, 0.70710677, 0, 0)
+
+                over "cylinder_1" (
+                    prepend apiSchemas = ["NewtonCollisionAPI"]
+                )
+                {
+                }
+            }
+
+            over "front_right_wheel" (
+                prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "NewtonMassAPI"]
+            )
+            {
+                double[] newton:inertia = [0.00168, 0.003, 0.00168, 0, 0, 0]
+                float3 physics:diagonalInertia = (0.00168, 0.00168, 0.003)
+                float physics:mass = 0.6
+                quatf physics:principalAxes = (-0.70710677, 0.70710677, 0, 0)
+
+                over "cylinder_1" (
+                    prepend apiSchemas = ["NewtonCollisionAPI"]
+                )
+                {
+                }
+            }
+
+            over "rear_left_wheel" (
+                prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "NewtonMassAPI"]
+            )
+            {
+                double[] newton:inertia = [0.00168, 0.003, 0.00168, 0, 0, 0]
+                float3 physics:diagonalInertia = (0.00168, 0.00168, 0.003)
+                float physics:mass = 0.6
+                quatf physics:principalAxes = (-0.70710677, 0.70710677, 0, 0)
+
+                over "cylinder_1" (
+                    prepend apiSchemas = ["NewtonCollisionAPI"]
+                )
+                {
+                }
+            }
+
+            over "rear_right_wheel" (
+                prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI", "NewtonMassAPI"]
+            )
+            {
+                double[] newton:inertia = [0.00168, 0.003, 0.00168, 0, 0, 0]
+                float3 physics:diagonalInertia = (0.00168, 0.00168, 0.003)
+                float physics:mass = 0.6
+                quatf physics:principalAxes = (-0.70710677, 0.70710677, 0, 0)
+
+                over "cylinder_1" (
+                    prepend apiSchemas = ["NewtonCollisionAPI"]
+                )
+                {
+                }
+            }
+
+            over "box_1" (
+                prepend apiSchemas = ["NewtonCollisionAPI"]
+            )
+            {
+            }
+        }
+    }
+
+    over "Physics"
+    {
+        def PhysicsRevoluteJoint "front_left_joint" (
+            prepend apiSchemas = ["NewtonJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.43633232
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            float newton:damping = 0.0008726646
+            uniform token physics:axis = "Y"
+            custom rel physics:body0
+            append rel physics:body0 = </rover/Geometry/base_link>
+            custom rel physics:body1
+            append rel physics:body1 = </rover/Geometry/base_link/front_left_wheel>
+            point3f physics:localPos0 = (0.2, 0.23, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsRevoluteJoint "front_right_joint" (
+            prepend apiSchemas = ["NewtonJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.43633232
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            float newton:damping = 0.0008726646
+            uniform token physics:axis = "Y"
+            custom rel physics:body0
+            append rel physics:body0 = </rover/Geometry/base_link>
+            custom rel physics:body1
+            append rel physics:body1 = </rover/Geometry/base_link/front_right_wheel>
+            point3f physics:localPos0 = (0.2, -0.23, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsRevoluteJoint "rear_left_joint" (
+            prepend apiSchemas = ["NewtonJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.43633232
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            float newton:damping = 0.0008726646
+            uniform token physics:axis = "Y"
+            custom rel physics:body0
+            append rel physics:body0 = </rover/Geometry/base_link>
+            custom rel physics:body1
+            append rel physics:body1 = </rover/Geometry/base_link/rear_left_wheel>
+            point3f physics:localPos0 = (-0.2, 0.23, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsRevoluteJoint "rear_right_joint" (
+            prepend apiSchemas = ["NewtonJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.43633232
+            float drive:angular:physics:stiffness = 0
+            uniform token drive:angular:physics:type = "force"
+            float newton:damping = 0.0008726646
+            uniform token physics:axis = "Y"
+            custom rel physics:body0
+            append rel physics:body0 = </rover/Geometry/base_link>
+            custom rel physics:body1
+            append rel physics:body1 = </rover/Geometry/base_link/rear_right_wheel>
+            point3f physics:localPos0 = (-0.2, -0.23, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, 0)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+    }
+}
+
