@@ -1,0 +1,4 @@
+.venv/
+__pycache__/
+assets/.asset_hash
+assets/config.yaml

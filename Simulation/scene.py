@@ -1,6 +1,8 @@
 from pathlib import Path
 
+from _support import runtime as cpu_runtime  # Disable CUDA before any simulator imports.
 import isaaclab.sim as sim_utils
+from isaaclab_newton.renderers import NewtonWarpRendererCfg
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
 from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.scene import InteractiveSceneCfg
@@ -12,7 +14,7 @@ from isaaclab.sensors import (
 from isaaclab.utils import configclass
 
 
-ROVER_USD = r"C:\Users\gavin\Desktop\isaa\assets\rover\rover.usda"
+ROVER_USD = Path(__file__).resolve().parent / "assets" / "rover" / "rover.usda"
 
 
 
@@ -23,7 +25,11 @@ class RoverSceneCfg(InteractiveSceneCfg):
     # Ground
     ground = AssetBaseCfg(
         prim_path="/World/Ground",
-        spawn=sim_utils.GroundPlaneCfg(),
+        spawn=sim_utils.CuboidCfg(
+            size=(200.0, 200.0, 0.1),
+            collision_props=sim_utils.CollisionPropertiesCfg(),
+        ),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, 0.0, -0.05)),
     )
 
     # Lighting
@@ -79,10 +85,11 @@ class RoverSceneCfg(InteractiveSceneCfg):
 
     # Front-facing RGB camera
     camera = CameraCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/base_link/front_camera",
+        renderer_cfg=NewtonWarpRendererCfg(use_cuda_graph=False),
+        prim_path="{ENV_REGEX_NS}/Robot/Geometry/base_link/front_camera",
         update_period=0.1,
-        height=480,
-        width=640,
+        height=120,
+        width=160,
         data_types=["rgb"],
         spawn=sim_utils.PinholeCameraCfg(
             focal_length=24.0,
@@ -98,7 +105,7 @@ class RoverSceneCfg(InteractiveSceneCfg):
 
     # 360-degree planar LiDAR
     lidar = MultiMeshRayCasterCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/base_link",
+        prim_path="{ENV_REGEX_NS}/Robot/Geometry/base_link",
         update_period=0.1,
         offset=MultiMeshRayCasterCfg.OffsetCfg(
             pos=(0.0, 0.0, 0.24),
@@ -114,5 +121,5 @@ class RoverSceneCfg(InteractiveSceneCfg):
             "/World/Obstacle1",
             "/World/Obstacle2",
         ],
-        debug_vis=True,
+        debug_vis=False,
     )

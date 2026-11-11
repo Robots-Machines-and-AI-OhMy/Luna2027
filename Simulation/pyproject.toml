@@ -1,0 +1,42 @@
+[project]
+name = "luna-rover-cpu"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "isaaclab", "isaaclab-newton", "isaaclab-ov", "isaaclab-physx",
+    "isaaclab-visualizers", "isaaclab-ppisp", "isaaclab-contrib",
+    "torch==2.11.0", "torchvision==0.26.0",
+    "numpy>=2", "warp-lang==1.17.0", "usd-exchange==3.0.1",
+    "newton[sim]", "newton-usd-schemas==0.5.0",
+    "lazy-loader", "gymnasium", "trimesh", "scipy", "pyyaml", "h5py",
+    "prettytable", "psutil", "packaging", "pillow", "matplotlib",
+    "onnx", "rich", "tqdm", "filelock", "typing-extensions",
+    "einops", "tensorboard", "hydra-core>=1.4.0rc2",
+    "pyglet>=2.1.6,<3", "imgui-bundle>=1.92.5",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+isaaclab = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab" }
+isaaclab-newton = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab_newton" }
+isaaclab-ov = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab_ov" }
+isaaclab-physx = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab_physx" }
+isaaclab-visualizers = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab_visualizers" }
+isaaclab-ppisp = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab_ppisp" }
+isaaclab-contrib = { git = "https://github.com/isaac-sim/IsaacLab.git", rev = "90a16f06685dbf7948262eafa628c470b4cdc78c", subdirectory = "source/isaaclab_contrib" }
+newton = { git = "https://github.com/newton-physics/newton.git", rev = "42f7def118c2c4299ce493457bafd4e8a22a696e" }
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+warp-lang = { index = "nvidia" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.nvidia.com/"
+explicit = true
