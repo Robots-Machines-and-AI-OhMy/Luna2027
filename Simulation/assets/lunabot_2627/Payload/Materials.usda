@@ -1,0 +1,134 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.4.0"
+    }
+    defaultPrim = "lunabot_2627"
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "lunabot_2627"
+{
+    def Scope "Materials"
+    {
+        def Material "chassis" (
+            prepend references = @./MaterialsLibrary.usdc@</Materials/chassis>
+        )
+        {
+        }
+
+        def Material "hopper_auger" (
+            prepend references = @./MaterialsLibrary.usdc@</Materials/hopper_auger>
+        )
+        {
+        }
+
+        def Material "mining" (
+            prepend references = @./MaterialsLibrary.usdc@</Materials/mining>
+        )
+        {
+        }
+
+        def Material "drivetrain" (
+            prepend references = @./MaterialsLibrary.usdc@</Materials/drivetrain>
+        )
+        {
+        }
+
+        def Material "electronics" (
+            prepend references = @./MaterialsLibrary.usdc@</Materials/electronics>
+        )
+        {
+        }
+
+        def Material "wheel" (
+            prepend references = @./MaterialsLibrary.usdc@</Materials/wheel>
+        )
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base_link"
+        {
+            over "chassis" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                rel material:binding = </lunabot_2627/Materials/chassis>
+            }
+
+            over "hopper_auger" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                rel material:binding = </lunabot_2627/Materials/hopper_auger>
+            }
+
+            over "mining" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                rel material:binding = </lunabot_2627/Materials/mining>
+            }
+
+            over "drivetrain" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                rel material:binding = </lunabot_2627/Materials/drivetrain>
+            }
+
+            over "electronics" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                rel material:binding = </lunabot_2627/Materials/electronics>
+            }
+
+            over "wheel_front_left"
+            {
+                over "wheel_front_left" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </lunabot_2627/Materials/wheel>
+                }
+            }
+
+            over "wheel_front_right"
+            {
+                over "wheel_front_right" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </lunabot_2627/Materials/wheel>
+                }
+            }
+
+            over "wheel_rear_left"
+            {
+                over "wheel_rear_left" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </lunabot_2627/Materials/wheel>
+                }
+            }
+
+            over "wheel_rear_right"
+            {
+                over "wheel_rear_right" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    rel material:binding = </lunabot_2627/Materials/wheel>
+                }
+            }
+        }
+    }
+}
+

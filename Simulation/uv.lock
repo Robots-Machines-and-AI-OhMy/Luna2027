@@ -377,6 +377,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "trimesh" },
     { name = "typing-extensions" },
+    { name = "urdf-usd-converter" },
     { name = "usd-exchange" },
     { name = "warp-lang" },
 ]
@@ -416,6 +417,7 @@ requires-dist = [
     { name = "tqdm" },
     { name = "trimesh" },
     { name = "typing-extensions" },
+    { name = "urdf-usd-converter", specifier = "==0.4.0" },
     { name = "usd-exchange", specifier = "==3.0.1" },
     { name = "warp-lang", specifier = "==1.17.0", index = "https://pypi.nvidia.com/" },
 ]
@@ -612,6 +614,20 @@ wheels = [
 ]
 
 [[package]]
+name = "numpy-stl"
+version = "4.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "python-utils" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/61/14bd181fec28d1bc268de2a3ce179bb7bdd1ef4152637b1c4a74d048c69c/numpy_stl-4.1.4.tar.gz", hash = "sha256:d3985564c49a40e1ab7f07f8f85ee8ef8bef906f762f20cef377f1cdf6895d36", size = 35933, upload-time = "2026-11-13T02:34:47.227Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f0/cb/ad83833d22ee0e01803f1cdc1bd0df37e220f38e777c8353f1d014b694b8/numpy_stl-4.1.4-py3-none-any.whl", hash = "sha256:b54aa2792ed70a52440c0be0167a4cf6bca67e4d2b5f69de73f796bfaaece640", size = 37660, upload-time = "2026-11-13T02:34:45.744Z" },
+]
+
+[[package]]
 name = "omegaconf"
 version = "2.4.1rc2"
 source = { registry = "https://pypi.org/simple" }
@@ -729,6 +745,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pycollada"
+version = "0.9.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "python-dateutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/8d/52a5364a17eb96129962cae8d3ee7658775e085ad0ba38388684ad5944e9/pycollada-0.9.3.tar.gz", hash = "sha256:c34d6dcf0fe2eba5896f71c96d37a1c0fe1a61f08440fa0cfcec3dc2895d3302", size = 110826, upload-time = "2026-01-24T15:45:23.625Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/86/f1f61b7a0701f9d1299e5293d083318019f91021a4d449f94d59dbe024e4/pycollada-0.9.3-py3-none-any.whl", hash = "sha256:636e6496f60987586db82455ea7bbd9ade775e8181c6590c83b698b6cd53a9f5", size = 129206, upload-time = "2026-01-24T15:45:22.182Z" },
+]
+
+[[package]]
 name = "pyglet"
 version = "2.1.19"
 source = { registry = "https://pypi.org/simple" }
@@ -774,6 +803,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/18/39/b3927f3616f6223832f9b760e4208e8a7c7e1dea2b4d9ad7d32a5d214c3a/python_dateutil-4.0.0.tar.gz", hash = "sha256:d7295ff14fdc0f92f662100bfb6c551d160ca090f2939f1ec5b9794265c03f06", size = 250419, upload-time = "2026-11-01T07:02:42.426Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/a9/52b89563d154433d79b51ed1eb4842bf7334cb2696891a7fe135618853d7/python_dateutil-4.0.0-py3-none-any.whl", hash = "sha256:a5e246f79eb80475e691bf93862cead98decd8a498cf53ba0516fcdc0f50dc1c", size = 92853, upload-time = "2026-11-01T07:02:40.797Z" },
+]
+
+[[package]]
+name = "python-utils"
+version = "4.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f6/bf/e4cc07248ca65fe5065a9712efeace1eba6b0c77c72fc24cbfc8a79ddd80/python_utils-4.2.2.tar.gz", hash = "sha256:6c51c46e600c67ad5f16c4205ba875ced4372e560561c5aa3cf52ff1d4657471", size = 87746, upload-time = "2026-11-13T16:40:51.194Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ac/f7/653d9774d62d17efe8a9ceb6982387aa02bf2641e3112fb8a2a8557f34ec/python_utils-4.2.2-py3-none-any.whl", hash = "sha256:7cb810c9d536108b5c6c4de886605cd1e86e25e77d809b778f33110666fc7630", size = 52247, upload-time = "2026-11-13T16:40:49.791Z" },
 ]
 
 [[package]]
@@ -877,6 +918,26 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7a/13/e503968fefabd4c6b2650af21e110aa8466fe21432cd7c43a84577a89438/tensorboard_data_server-0.7.2-py3-none-any.whl", hash = "sha256:7e0610d205889588983836ec05dc098e80f97b7e7bbff7e994ebb78f578d0ddb", size = 2356, upload-time = "2023-10-23T21:23:32.16Z" },
     { url = "https://files.pythonhosted.org/packages/b7/85/dabeaf902892922777492e1d253bb7e1264cadce3cea932f7ff599e53fea/tensorboard_data_server-0.7.2-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:9fe5d24221b29625dbc7328b0436ca7fc1c23de4acf4d272f1180856e32f9f60", size = 4823598, upload-time = "2023-10-23T21:23:33.714Z" },
     { url = "https://files.pythonhosted.org/packages/73/c6/825dab04195756cf8ff2e12698f22513b3db2f64925bdd41671bfb33aaa5/tensorboard_data_server-0.7.2-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:ef687163c24185ae9754ed5650eb5bc4d84ff257aabdc33f0cc6f74d8ba54530", size = 6590363, upload-time = "2023-10-23T21:23:35.583Z" },
+]
+
+[[package]]
+name = "tinyobjloader"
+version = "2.0.0rc13"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/39/3f/1165a0614a93d8b9bc1b69feaeb03abafdfe2ceeca6e1dbc475e3119bfc0/tinyobjloader-2.0.0rc13.tar.gz", hash = "sha256:409cd5f2a02d0393fc30b9aed8a440c7f68db59f650033045c2ef8b04b7ac8ea", size = 997795, upload-time = "2024-01-26T23:55:18.979Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/ab/9357da1b5ca329b764ecfb2f34661c26e9cad49d1804abbec02c11985f70/tinyobjloader-2.0.0rc13-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:f87ddfb29fa80639f10f6db8878a328dd7cdc15fb4dcc50b21d00a791f3e6400", size = 364712, upload-time = "2024-01-26T23:54:18.625Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/78/e28097611237fbce293164ecdb08d57cad5019e2a5f3f7eb2b5290ccf760/tinyobjloader-2.0.0rc13-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:5f251208894efc931d685121b8515fe30c5bf6b44e0770e0776a5a574a38230c", size = 195297, upload-time = "2024-01-26T23:54:19.831Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/cf/aa8e48ee5909cf12ec3e9b26ee4a9a8c430f1ba400e5c0b09374cf452b17/tinyobjloader-2.0.0rc13-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:efa02a09ed326976bad318e5fe00d514a4ecc1ec9885ad775fe1c9f7fa04cebb", size = 183756, upload-time = "2024-01-26T23:54:21.032Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/49/4e9a11a27c3bc682da4f9d8b7c96b0260d120c17c8674e2b2759ac30944f/tinyobjloader-2.0.0rc13-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:be84b0f4015027e5d44e9474995d992ef3b45e026d86bdc60cedfe8cff123959", size = 233759, upload-time = "2024-01-26T23:44:38.831Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/99/52b235ce8bc47f499e10e3d1571f35541e8360c3d2b5db72c78570624649/tinyobjloader-2.0.0rc13-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:13ed0a0b8993f2ef8074f990565b14e7409494238ca56ff45ac711932c1e7f67", size = 257462, upload-time = "2024-01-26T23:54:22.271Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/0a/7a3342d274419e05a40f033828e6a9e883a661a60edfeb8db279950951e1/tinyobjloader-2.0.0rc13-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:81433d5828bfe5c88a1dabf1185a6e7e73dcde15b66c5a65bcce51340fd444b7", size = 241626, upload-time = "2024-01-26T23:54:23.637Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/a4/f3e3b66f841596655ac7e5d971284bd46718bc928c299eb2140393b4e0d3/tinyobjloader-2.0.0rc13-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:b3a90068c596667ee98feeb66e02eddeb479ad2d0cdff5a6adc0f7a2ff987c8e", size = 727600, upload-time = "2024-01-26T23:44:40.738Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/a5/1140c133fe7ecc362234b8c41d38d4517c84ce6073d22efab03568511b44/tinyobjloader-2.0.0rc13-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:b2db221fb55606bd7f1465960d0e1fbd5b3e4058822babc739847e5e9bd33824", size = 815384, upload-time = "2024-01-26T23:54:25.601Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/8a/2143ced6a23fdcd1b2e2c712c0eb203e453676c0938b5562910e9602da43/tinyobjloader-2.0.0rc13-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:5b443659b8b864414f326a5de5c774ba98d90257963cd6eecdb956c687ebb39a", size = 747842, upload-time = "2024-01-26T23:54:27.046Z" },
+    { url = "https://files.pythonhosted.org/packages/74/89/9e1954df4119eae076941687014fbcb7bb33f27a659b7f546d32717984a5/tinyobjloader-2.0.0rc13-cp312-cp312-win32.whl", hash = "sha256:ec77d26d7b4877e3a82cd2d594c1f4ae5283842b55f360679f9ab2c1bfceb0ae", size = 138306, upload-time = "2024-01-26T23:54:28.23Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/1b/fd7c5c7f2715ab946d2404f251156569970f1f3e8fecc4cfe29f5389cc00/tinyobjloader-2.0.0rc13-cp312-cp312-win_amd64.whl", hash = "sha256:044c3deb2603b6df021d642a99737ffcf15340e23204c2335c5c380003daa221", size = 156209, upload-time = "2024-01-26T23:54:29.717Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/92/1816686a00a068c089453cecd8cc7455b9653e74d09346c468e3db61eafd/tinyobjloader-2.0.0rc13-cp312-cp312-win_arm64.whl", hash = "sha256:66d36b1a45bed07556b2e9c0375b05b991771fcf1bc1fca79be9517400130730", size = 149264, upload-time = "2024-01-26T23:54:30.812Z" },
 ]
 
 [[package]]
@@ -996,6 +1057,22 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7a/29/6a1391d31cd00ff9e927215a224a880e1e84e826b64ba80a499e51c074d8/tzdata-2026.6.tar.gz", hash = "sha256:85d2cd9c09f81f0bb29db27759fc83af4f1e620efb814f8c5bf8b4cc4feece6d", size = 201017, upload-time = "2026-10-28T09:57:09.137Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0a/66/9a06c2227fedfd4919f0eaaa8b94377d9730882a7e4f95823c9a331ab5e1/tzdata-2026.6-py2.py3-none-any.whl", hash = "sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec", size = 348210, upload-time = "2026-10-28T09:57:07.276Z" },
+]
+
+[[package]]
+name = "urdf-usd-converter"
+version = "0.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "newton-usd-schemas" },
+    { name = "numpy-stl" },
+    { name = "pycollada" },
+    { name = "tinyobjloader" },
+    { name = "usd-exchange" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8b/a8/de8548ce89087222549ac7fd9ff5f320a5b9424c6b4f722fa6fc3db9fa4d/urdf_usd_converter-0.4.0.tar.gz", hash = "sha256:afc673bf1dd2444db7017c623d018c0d77169fea32db3ba1aab7668f3b498234", size = 263130, upload-time = "2026-11-05T21:45:16.949Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/56/3a5a199f7be9e34b5941c4cd6a77cd0a618a2ca6f398c2ca45848d6d7677/urdf_usd_converter-0.4.0-py3-none-any.whl", hash = "sha256:c9aa321e95348cb16492df1f73ab023db442cb9df2f2963738c1cb453db21ea5", size = 70660, upload-time = "2026-11-05T21:45:15.457Z" },
 ]
 
 [[package]]

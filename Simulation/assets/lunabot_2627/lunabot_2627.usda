@@ -1,0 +1,32 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.4.0"
+    }
+    defaultPrim = "lunabot_2627"
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "lunabot_2627" (
+    prepend apiSchemas = ["GeomModelAPI"]
+    assetInfo = {
+        string name = "lunabot_2627"
+    }
+    kind = "component"
+    prepend payload = @./Payload/Contents.usda@
+)
+{
+    float3[] extentsHint = [(-0.4072101, -0.31504202, -0.22204384), (0.7486227, 0.31504902, 0.5298675), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (-0.408311, -0.31504205, -0.1479631), (0.7157774, 0.31504905, 0.5298675)]
+
+    over "Physics"
+    {
+        over "root_joint" (
+            active = false
+        )
+        {
+        }
+    }
+}
+

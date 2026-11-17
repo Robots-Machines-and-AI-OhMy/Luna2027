@@ -1,0 +1,254 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.4.0"
+    }
+    defaultPrim = "lunabot_2627"
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "lunabot_2627"
+{
+    def Scope "Geometry"
+    {
+        def Xform "base_link"
+        {
+            def Mesh "chassis" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_link_chassis>
+            )
+            {
+                custom string urdf:name = "chassis"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "hopper_auger" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_link_hopper_auger>
+            )
+            {
+                custom string urdf:name = "hopper_auger"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "mining" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_link_mining>
+            )
+            {
+                custom string urdf:name = "mining"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "drivetrain" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_link_drivetrain>
+            )
+            {
+                custom string urdf:name = "drivetrain"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "electronics" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_link_electronics>
+            )
+            {
+                custom string urdf:name = "electronics"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "base_chassis_hull" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_chassis_hull>
+            )
+            {
+                uniform token purpose = "guide"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "base_hopper_auger_hull" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_hopper_auger_hull>
+            )
+            {
+                uniform token purpose = "guide"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "base_mining_hull" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_mining_hull>
+            )
+            {
+                uniform token purpose = "guide"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "base_drivetrain_hull" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_drivetrain_hull>
+            )
+            {
+                uniform token purpose = "guide"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Mesh "base_electronics_hull" (
+                prepend references = @./GeometryLibrary.usdc@</Geometry/base_electronics_hull>
+            )
+            {
+                uniform token purpose = "guide"
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "wheel_front_left"
+            {
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.260349, 0.270599, -0.00000308838)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Mesh "wheel_front_left" (
+                    prepend references = @./GeometryLibrary.usdc@</Geometry/wheel_front_left>
+                )
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Cylinder "cylinder"
+                {
+                    uniform token axis = "Z"
+                    float3[] extent = [(-0.14796, -0.14796, -0.04445), (0.14796, 0.14796, 0.04445)]
+                    double height = 0.0889
+                    uniform token purpose = "guide"
+                    double radius = 0.14796
+                    quatf xformOp:orient = (0.7071069, 0.70710665, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "wheel_front_right"
+            {
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0.260349, -0.270592, -0.00000308838)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Mesh "wheel_front_right" (
+                    prepend references = @./GeometryLibrary.usdc@</Geometry/wheel_front_right>
+                )
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Cylinder "cylinder"
+                {
+                    uniform token axis = "Z"
+                    float3[] extent = [(-0.14796, -0.14796, -0.04445), (0.14796, 0.14796, 0.04445)]
+                    double height = 0.0889
+                    uniform token purpose = "guide"
+                    double radius = 0.14796
+                    quatf xformOp:orient = (0.7071069, 0.70710665, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "wheel_rear_left"
+            {
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.260351, 0.270599, -0.00000308838)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Mesh "wheel_rear_left" (
+                    prepend references = @./GeometryLibrary.usdc@</Geometry/wheel_rear_left>
+                )
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Cylinder "cylinder"
+                {
+                    uniform token axis = "Z"
+                    float3[] extent = [(-0.14796, -0.14796, -0.04445), (0.14796, 0.14796, 0.04445)]
+                    double height = 0.0889
+                    uniform token purpose = "guide"
+                    double radius = 0.14796
+                    quatf xformOp:orient = (0.7071069, 0.70710665, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Xform "wheel_rear_right"
+            {
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (-0.260351, -0.270592, -0.00000308838)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Mesh "wheel_rear_right" (
+                    prepend references = @./GeometryLibrary.usdc@</Geometry/wheel_rear_right>
+                )
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Cylinder "cylinder"
+                {
+                    uniform token axis = "Z"
+                    float3[] extent = [(-0.14796, -0.14796, -0.04445), (0.14796, 0.14796, 0.04445)]
+                    double height = 0.0889
+                    uniform token purpose = "guide"
+                    double radius = 0.14796
+                    quatf xformOp:orient = (0.7071069, 0.70710665, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+        }
+    }
+}
+

@@ -14,6 +14,7 @@ from isaaclab.utils import instantiate
 from isaaclab_newton.physics import MJWarpSolverCfg, NewtonCfg
 
 from manualController import RoverController
+from buildRover.makeRover import ROVER_USD, build_rover
 from scene import RoverSceneCfg
 from _support.physics import CpuMJWarpSolver
 
@@ -21,16 +22,17 @@ DT = 1.0 / 120.0
 
 
 def differential_drive(v, yaw_rate):
-    radius = 0.10
-    track_width = 0.46
+    # Wheel collision radius and left/right axle spacing from lunabot_2627.urdf.
+    radius = 0.14796
+    track_width = 0.541191
     return (v - yaw_rate * track_width / 2) / radius, (v + yaw_rate * track_width / 2) / radius
 
 
 def run_simulator(sim, scene, max_steps, realtime=False):
     controller = RoverController()
     robot = scene["robot"]
-    left_ids = [robot.joint_names.index(name) for name in ("front_left_joint", "rear_left_joint")]
-    right_ids = [robot.joint_names.index(name) for name in ("front_right_joint", "rear_right_joint")]
+    left_ids = [robot.joint_names.index(name) for name in ("wheel_front_left_joint", "wheel_rear_left_joint")]
+    right_ids = [robot.joint_names.index(name) for name in ("wheel_front_right_joint", "wheel_rear_right_joint")]
     dt = sim.get_physics_dt()
     step = 0
     wall_start = time.monotonic()
@@ -65,6 +67,9 @@ def main():
     args = parser.parse_args()
     if args.steps < 0 or args.num_envs < 1:
         parser.error("--steps must be non-negative and --num-envs must be positive")
+
+    if not ROVER_USD.is_file():
+        build_rover()
 
     sim_cfg = sim_utils.SimulationCfg(
         dt=DT,

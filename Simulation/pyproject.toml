@@ -13,6 +13,7 @@ dependencies = [
     "onnx", "rich", "tqdm", "filelock", "typing-extensions",
     "einops", "tensorboard", "hydra-core>=1.4.0rc2",
     "pyglet>=2.1.6,<3", "imgui-bundle>=1.92.5",
+    "urdf-usd-converter==0.4.0",
 ]
 
 [tool.uv]

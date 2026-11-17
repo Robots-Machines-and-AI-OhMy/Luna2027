@@ -1,6 +1,5 @@
-from pathlib import Path
-
 from _support import runtime as cpu_runtime  # Disable CUDA before any simulator imports.
+from buildRover.makeRover import ROVER_USD
 import isaaclab.sim as sim_utils
 from isaaclab_newton.renderers import NewtonWarpRendererCfg
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
@@ -12,10 +11,6 @@ from isaaclab.sensors import (
     patterns,
 )
 from isaaclab.utils import configclass
-
-
-ROVER_USD = Path(__file__).resolve().parent / "assets" / "rover" / "rover.usda"
-
 
 
 # Scene Config
@@ -47,15 +42,15 @@ class RoverSceneCfg(InteractiveSceneCfg):
             usd_path=str(ROVER_USD),
         ),
         init_state=ArticulationCfg.InitialStateCfg(
-            pos=(0.0, 0.0, 0.12),
+            pos=(0.0, 0.0, 0.17),
         ),
         actuators={
             "wheels": ImplicitActuatorCfg(
-                joint_names_expr=[".*_joint"],
+                joint_names_expr=["wheel_.*_joint"],
                 stiffness=0.0,
                 damping=25.0,
-                joint_effort_limit=30.0,
-                joint_velocity_limit=30.0,
+                joint_effort_limit=100.0,
+                joint_velocity_limit=5.03,
             )
         },
     )

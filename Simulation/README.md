@@ -50,6 +50,13 @@ sensors, and `runRover.py` for the simulation loop. The controller returns
 forward speed (m/s) and yaw rate (rad/s). Camera and lidar tensors are available
 through `camera.data.output["rgb"].torch` and `lidar.data.ray_hits_w.torch`.
 
-The ready-to-use robot is in `assets/rover/`. `buildRover/` contains the
-optional URDF generator; changing its URDF does not regenerate the USD.
+The simulation loads `assets/lunabot_2627/lunabot_2627.usda`, converted from
+`buildRover/lunabot_2627.urdf` and the visual/collision meshes in `buildRover/meshes/`.
+If the USD is missing, the runner builds it automatically. After editing the URDF
+or meshes, rebuild it from this folder with:
+
+```powershell
+uv run python buildRover/makeRover.py
+```
+
 This configuration runs one rover per process, entirely on the CPU.

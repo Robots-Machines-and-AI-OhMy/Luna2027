@@ -1,156 +1,159 @@
 <?xml version="1.0"?>
-<robot name="rover">
-
-  <material name="blue">
-    <color rgba="0.15 0.35 0.8 1"/>
-  </material>
-
-  <material name="black">
-    <color rgba="0.1 0.1 0.1 1"/>
-  </material>
+<!-- Lunabotics 26-27 robot. Generated from 1000001 top-level STEP. Units: m, kg. Frame: X forward (mining end), Y left, Z up; base_link at mid-point of the four wheel axles. -->
+<robot name="lunabot_2627">
+  <material name="chassis"><color rgba="0.75 0.76 0.78 1"/></material>
+  <material name="hopper_auger"><color rgba="0.85 0.55 0.2 1"/></material>
+  <material name="mining"><color rgba="0.25 0.45 0.8 1"/></material>
+  <material name="electronics"><color rgba="0.15 0.15 0.17 1"/></material>
+  <material name="drivetrain"><color rgba="0.4 0.4 0.42 1"/></material>
+  <material name="wheel"><color rgba="0.55 0.57 0.6 1"/></material>
 
   <link name="base_link">
-    <visual>
-      <geometry>
-        <box size="0.6 0.4 0.15"/>
-      </geometry>
-      <material name="blue"/>
-    </visual>
-
-    <collision>
-      <geometry>
-        <box size="0.6 0.4 0.15"/>
-      </geometry>
-    </collision>
-
     <inertial>
-      <mass value="8.0"/>
-      <inertia ixx="0.12" ixy="0" ixz="0"
-               iyy="0.25" iyz="0" izz="0.35"/>
+      <origin xyz="0.169762 -0.00404623 0.177571" rpy="0 0 0"/>
+      <mass value="54.9041"/>
+      <inertia ixx="2.59173" ixy="-0.141812" ixz="1.02352" iyy="6.79596" iyz="0.050353" izz="6.01457"/>
     </inertial>
-  </link>
-
-  <link name="front_left_wheel">
-    <visual>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-      <material name="black"/>
+    <visual name="chassis">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/base_link_chassis.obj"/></geometry>
+      <material name="chassis"/>
     </visual>
-
+    <visual name="hopper_auger">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/base_link_hopper_auger.obj"/></geometry>
+      <material name="hopper_auger"/>
+    </visual>
+    <visual name="mining">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/base_link_mining.obj"/></geometry>
+      <material name="mining"/>
+    </visual>
+    <visual name="drivetrain">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/base_link_drivetrain.obj"/></geometry>
+      <material name="drivetrain"/>
+    </visual>
+    <visual name="electronics">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/base_link_electronics.obj"/></geometry>
+      <material name="electronics"/>
+    </visual>
     <collision>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/collision/base_chassis_hull.obj"/></geometry>
     </collision>
-
-    <inertial>
-      <mass value="0.6"/>
-      <inertia ixx="0.00168" ixy="0" ixz="0"
-               iyy="0.003" iyz="0" izz="0.00168"/>
-    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/collision/base_hopper_auger_hull.obj"/></geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/collision/base_mining_hull.obj"/></geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/collision/base_drivetrain_hull.obj"/></geometry>
+    </collision>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/collision/base_electronics_hull.obj"/></geometry>
+    </collision>
   </link>
-
-  <joint name="front_left_joint" type="continuous">
+  <link name="wheel_front_left">
+    <inertial>
+      <origin xyz="4.73943e-08 0.000293136 -6.54466e-07" rpy="0 0 0"/>
+      <mass value="1.1957"/>
+      <inertia ixx="0.00701331" ixy="-1.77084e-09" ixz="6.74482e-12" iyy="0.0129399" iyz="1.97461e-08" izz="0.00701331"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/wheel_front_left.obj"/></geometry>
+      <material name="wheel"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.570796 0 0"/>
+      <geometry><cylinder radius="0.14796" length="0.0889"/></geometry>
+    </collision>
+  </link>
+  <joint name="wheel_front_left_joint" type="continuous">
     <parent link="base_link"/>
-    <child link="front_left_wheel"/>
-    <origin xyz="0.2 0.23 0"/>
+    <child link="wheel_front_left"/>
+    <origin xyz="0.260349 0.270599 -3.08838e-06" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0"/>
+    <limit effort="100" velocity="5.03"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
-
-  <link name="front_right_wheel">
-    <visual>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-
-    <collision>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-    </collision>
-
+  <link name="wheel_front_right">
     <inertial>
-      <mass value="0.6"/>
-      <inertia ixx="0.00168" ixy="0" ixz="0"
-               iyy="0.003" iyz="0" izz="0.00168"/>
+      <origin xyz="-5.58732e-08 -0.000293146 -6.54466e-07" rpy="0 0 0"/>
+      <mass value="1.1957"/>
+      <inertia ixx="0.00701331" ixy="-1.77084e-09" ixz="-6.74482e-12" iyy="0.0129399" iyz="-1.97461e-08" izz="0.00701331"/>
     </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/wheel_front_right.obj"/></geometry>
+      <material name="wheel"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.570796 0 0"/>
+      <geometry><cylinder radius="0.14796" length="0.0889"/></geometry>
+    </collision>
   </link>
-
-  <joint name="front_right_joint" type="continuous">
+  <joint name="wheel_front_right_joint" type="continuous">
     <parent link="base_link"/>
-    <child link="front_right_wheel"/>
-    <origin xyz="0.2 -0.23 0"/>
+    <child link="wheel_front_right"/>
+    <origin xyz="0.260349 -0.270592 -3.08838e-06" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0"/>
+    <limit effort="100" velocity="5.03"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
-
-  <link name="rear_left_wheel">
-    <visual>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-
-    <collision>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-    </collision>
-
+  <link name="wheel_rear_left">
     <inertial>
-      <mass value="0.6"/>
-      <inertia ixx="0.00168" ixy="0" ixz="0"
-               iyy="0.003" iyz="0" izz="0.00168"/>
+      <origin xyz="6.02105e-07 0.000293136 -2.8163e-07" rpy="0 0 0"/>
+      <mass value="1.1957"/>
+      <inertia ixx="0.00701331" ixy="-1.79861e-08" ixz="1.67368e-11" iyy="0.0129399" iyz="8.33948e-09" izz="0.00701331"/>
     </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/wheel_rear_left.obj"/></geometry>
+      <material name="wheel"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.570796 0 0"/>
+      <geometry><cylinder radius="0.14796" length="0.0889"/></geometry>
+    </collision>
   </link>
-
-  <joint name="rear_left_joint" type="continuous">
+  <joint name="wheel_rear_left_joint" type="continuous">
     <parent link="base_link"/>
-    <child link="rear_left_wheel"/>
-    <origin xyz="-0.2 0.23 0"/>
+    <child link="wheel_rear_left"/>
+    <origin xyz="-0.260351 0.270599 -3.08838e-06" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0"/>
+    <limit effort="100" velocity="5.03"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
-
-  <link name="rear_right_wheel">
-    <visual>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-
-    <collision>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="0.1" length="0.06"/>
-      </geometry>
-    </collision>
-
+  <link name="wheel_rear_right">
     <inertial>
-      <mass value="0.6"/>
-      <inertia ixx="0.00168" ixy="0" ixz="0"
-               iyy="0.003" iyz="0" izz="0.00168"/>
+      <origin xyz="-5.8617e-07 -0.000293146 -2.8163e-07" rpy="0 0 0"/>
+      <mass value="1.1957"/>
+      <inertia ixx="0.00701331" ixy="-1.79861e-08" ixz="-1.67368e-11" iyy="0.0129399" iyz="-8.33948e-09" izz="0.00701331"/>
     </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><mesh filename="meshes/visual/wheel_rear_right.obj"/></geometry>
+      <material name="wheel"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="1.570796 0 0"/>
+      <geometry><cylinder radius="0.14796" length="0.0889"/></geometry>
+    </collision>
   </link>
-
-  <joint name="rear_right_joint" type="continuous">
+  <joint name="wheel_rear_right_joint" type="continuous">
     <parent link="base_link"/>
-    <child link="rear_right_wheel"/>
-    <origin xyz="-0.2 -0.23 0"/>
+    <child link="wheel_rear_right"/>
+    <origin xyz="-0.260351 -0.270592 -3.08838e-06" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0"/>
+    <limit effort="100" velocity="5.03"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
 </robot>

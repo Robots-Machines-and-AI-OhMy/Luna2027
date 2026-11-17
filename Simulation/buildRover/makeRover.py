@@ -1,92 +1,48 @@
+"""Build the simulation USD from lunabot_2627.urdf and its meshes."""
 
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
-# Rover dimensions, in meters
-BODY_LENGTH = 0.60
-BODY_WIDTH = 0.40
-BODY_HEIGHT = 0.15
 
-WHEEL_RADIUS = 0.10
-WHEEL_WIDTH = 0.06
+BUILD_DIR = Path(__file__).resolve().parent
+URDF_PATH = BUILD_DIR / "lunabot_2627.urdf"
+USD_DIR = BUILD_DIR.parent / "assets" / "lunabot_2627"
+ROVER_USD = USD_DIR / "lunabot_2627.usda"
 
-# Wheel centers, relative to the chassis
-WHEELS = {
-    "front_left":  (0.20,  0.23),
-    "front_right": (0.20, -0.23),
-    "rear_left":  (-0.20,  0.23),
-    "rear_right": (-0.20, -0.23),
-}
 
-urdf = f"""<?xml version="1.0"?>
-<robot name="rover">
+def build_rover():
+    # Check all inputs before the converter can create an incomplete asset.
+    robot = ET.parse(URDF_PATH).getroot()
+    missing = sorted({
+        mesh.attrib["filename"]
+        for mesh in robot.findall(".//mesh")
+        if not (BUILD_DIR / mesh.attrib["filename"]).is_file()
+    })
+    if missing:
+        raise FileNotFoundError("Missing URDF meshes relative to " + str(BUILD_DIR) + ":\n" + "\n".join(missing))
 
-  <material name="blue">
-    <color rgba="0.15 0.35 0.8 1"/>
-  </material>
+    from urdf_usd_converter import Converter
+    from pxr import Usd
 
-  <material name="black">
-    <color rgba="0.1 0.1 0.1 1"/>
-  </material>
+    # Isaac Lab supplies the world/physics scene; PreviewSurface works with the CPU renderer.
+    asset = Converter(scene=False, openpbr=False).convert(str(URDF_PATH), str(USD_DIR))
+    output = Path(asset.path)
+    if output.resolve() != ROVER_USD.resolve() or not output.is_file():
+        raise RuntimeError(f"Expected converted rover at {ROVER_USD}, got {output}")
 
-  <link name="base_link">
-    <visual>
-      <geometry>
-        <box size="{BODY_LENGTH} {BODY_WIDTH} {BODY_HEIGHT}"/>
-      </geometry>
-      <material name="blue"/>
-    </visual>
+    # The converter anchors the root to the world by default. This rover must drive freely.
+    stage = Usd.Stage.Open(str(output))
+    root_joint = stage.GetPrimAtPath(stage.GetDefaultPrim().GetPath().AppendPath("Physics/root_joint"))
+    if not root_joint:
+        raise RuntimeError("Converted USD is missing the expected root joint")
+    root_joint.SetActive(False)
+    stage.GetRootLayer().Save()
+    return output
 
-    <collision>
-      <geometry>
-        <box size="{BODY_LENGTH} {BODY_WIDTH} {BODY_HEIGHT}"/>
-      </geometry>
-    </collision>
 
-    <inertial>
-      <mass value="8.0"/>
-      <inertia ixx="0.12" ixy="0" ixz="0"
-               iyy="0.25" iyz="0" izz="0.35"/>
-    </inertial>
-  </link>
-"""
+def main():
+    print(f"Created: {build_rover()}")
 
-for name, (x, y) in WHEELS.items():
-    urdf += f"""
-  <link name="{name}_wheel">
-    <visual>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="{WHEEL_RADIUS}" length="{WHEEL_WIDTH}"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
 
-    <collision>
-      <origin rpy="1.57079632679 0 0"/>
-      <geometry>
-        <cylinder radius="{WHEEL_RADIUS}" length="{WHEEL_WIDTH}"/>
-      </geometry>
-    </collision>
-
-    <inertial>
-      <mass value="0.6"/>
-      <inertia ixx="0.00168" ixy="0" ixz="0"
-               iyy="0.003" iyz="0" izz="0.00168"/>
-    </inertial>
-  </link>
-
-  <joint name="{name}_joint" type="continuous">
-    <parent link="base_link"/>
-    <child link="{name}_wheel"/>
-    <origin xyz="{x} {y} 0"/>
-    <axis xyz="0 1 0"/>
-    <dynamics damping="0.05" friction="0"/>
-  </joint>
-"""
-
-urdf += "</robot>\n"
-
-output = Path(__file__).parent / "rover.urdf"
-output.write_text(urdf)
-
-print(f"Created: {output}")
+if __name__ == "__main__":
+    main()
